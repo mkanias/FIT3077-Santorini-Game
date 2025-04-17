@@ -60,7 +60,16 @@ public class BoardUI {
         if (gameState.isGameOver()) {
             Player winner = gameState.getWinner();
             turnIndicator.setBackground(winner.getColor());
-            turnIndicator.setToolTipText(winner.getName() + " wins by reaching level 3!");
+            
+            // Get the next player (who would be current if game wasn't over)
+            Player nextPlayer = gameState.getCurrentPlayer();
+            
+            // If the next player is not the winner, they must be trapped
+            if (nextPlayer != winner) {
+                turnIndicator.setToolTipText(winner.getName() + " wins! " + nextPlayer.getName() + " is trapped with no valid moves!");
+            } else {
+                turnIndicator.setToolTipText(winner.getName() + " wins by reaching level 3!");
+            }
             return;
         }
 

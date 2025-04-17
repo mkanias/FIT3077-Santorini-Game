@@ -136,13 +136,23 @@ public class GameState {
      * 
      * @param players The list of players
      * @param movesPerTurn The number of moves per turn
+     * @param boardLogic The board logic instance to check for valid moves
      */
-    public void switchToNextPlayer(List<Player> players, int movesPerTurn) {
+    public void switchToNextPlayer(List<Player> players, int movesPerTurn, BoardLogic boardLogic) {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
         movesRemaining = movesPerTurn;
         selectedPiece = null;
         inBuildPhase = false;
+
+        // Check if the new current player has any valid moves
+        if (!boardLogic.hasValidMoves(currentPlayer)) {
+            // If the player has no valid moves, they lose
+            // The previous player (who just finished their turn) wins
+            int previousPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
+            Player winner = players.get(previousPlayerIndex);
+            endGame(winner);
+        }
     }
     
     /**

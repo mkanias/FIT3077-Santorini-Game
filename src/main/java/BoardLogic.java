@@ -127,22 +127,16 @@ public class BoardLogic {
         GridCell sourceCell = getCell(entity.getRow(), entity.getCol());
         GridCell destCell = getCell(toRow, toCol);
 
-        // Check for winning condition - moving from lower level to level 3
-        if (sourceCell.getBuildingLevel() < 3 && destCell.getBuildingLevel() == 3) {
-            // Move the entity first
-            sourceCell.setOccupant(null);
-            destCell.setOccupant(entity);
-            entity.setPosition(toRow, toCol);
-            
-            // End the game with the current player as winner
-            gameState.endGame(gameState.getCurrentPlayer());
-            return true;
-        }
-
         // Move the entity
         sourceCell.setOccupant(null);
         destCell.setOccupant(entity);
         entity.setPosition(toRow, toCol);
+
+        // Check for winning condition - moving from lower level to level 3
+        if (sourceCell.getBuildingLevel() < 3 && destCell.getBuildingLevel() == 3) {
+            gameState.endGame(gameState.getCurrentPlayer());
+            return true;
+        }
 
         // Enter build phase after successful move (only if game is not over)
         if (!gameState.isGameOver()) {
@@ -225,7 +219,7 @@ public class BoardLogic {
         
         // Exit build phase and switch turns
         gameState.setInBuildPhase(false);
-        gameState.switchToNextPlayer(players, config.getMovesPerTurn());
+        gameState.switchToNextPlayer(players, config.getMovesPerTurn(), this);
         
         return true;
     }
@@ -274,5 +268,40 @@ public class BoardLogic {
      */
     public int getPiecesPlaced(Player player) {
         return piecesPlaced.getOrDefault(player, 0);
+    }
+    
+    /**
+     * Checks if a player has any valid moves available.
+     * Used to determine if a player is trapped and should lose.
+     * 
+     * @param player The player to check for valid moves
+     * @return true if the player has at least one valid move, false if trapped
+     */
+    public boolean hasValidMoves(Player player) {
+        List<Player> pieces = playerPieces.get(player);
+        
+        // Check each piece of the player
+        for (Player piece : pieces) {
+            int pieceRow = piece.getRow();
+            int pieceCol = piece.getCol();
+            
+            // Check all adjacent cells
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (i == 0 && j == 0) continue; // Skip current position
+                    
+                    int targetRow = pieceRow + i;
+                    int targetCol = pieceCol + j;
+                    
+                    // If there's a valid move available, the player is not trapped
+                    if (isValidMove(pieceRow, pieceCol, targetRow, targetCol)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        // If we get here, no valid moves were found
+        return false;
     }
 } 
