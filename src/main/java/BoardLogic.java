@@ -127,13 +127,27 @@ public class BoardLogic {
         GridCell sourceCell = getCell(entity.getRow(), entity.getCol());
         GridCell destCell = getCell(toRow, toCol);
 
+        // Check for winning condition - moving from lower level to level 3
+        if (sourceCell.getBuildingLevel() < 3 && destCell.getBuildingLevel() == 3) {
+            // Move the entity first
+            sourceCell.setOccupant(null);
+            destCell.setOccupant(entity);
+            entity.setPosition(toRow, toCol);
+            
+            // End the game with the current player as winner
+            gameState.endGame(gameState.getCurrentPlayer());
+            return true;
+        }
+
         // Move the entity
         sourceCell.setOccupant(null);
         destCell.setOccupant(entity);
         entity.setPosition(toRow, toCol);
 
-        // Enter build phase after successful move
-        gameState.setInBuildPhase(true);
+        // Enter build phase after successful move (only if game is not over)
+        if (!gameState.isGameOver()) {
+            gameState.setInBuildPhase(true);
+        }
         
         return true;
     }

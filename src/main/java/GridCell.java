@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.AlphaComposite;
 
 /**
  * Represents a cell in the game grid.
@@ -27,7 +29,12 @@ public class GridCell {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                drawBuildingLevel(g);
+                
+                // Draw the building level with semi-transparency
+                Graphics2D g2d = (Graphics2D) g;
+                AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f);
+                g2d.setComposite(alphaComposite);
+                drawBuildingLevel(g2d);
             }
         };
         this.visualComponent.setBorder(new LineBorder(Color.BLACK, 1));
@@ -41,7 +48,7 @@ public class GridCell {
      * Draws the building level visualization.
      * @param g The Graphics object to draw with
      */
-    private void drawBuildingLevel(Graphics g) {
+    private void drawBuildingLevel(Graphics2D g) {
         if (buildingLevel == 0) return;
 
         int width = visualComponent.getWidth();
@@ -49,17 +56,20 @@ public class GridCell {
         int padding = 8;
         
         if (buildingLevel == 4) {
-            // Draw dome (black circle)
-            g.setColor(Color.BLACK);
+            // Draw dome (black circle) with semi-transparency
+            g.setColor(new Color(0, 0, 0, 180));
             int circleSize = Math.min(width, height) - 2 * padding;
             g.fillOval(padding, padding, circleSize, circleSize);
         } else {
-            // Draw concentric squares for levels 1-3
+            // Draw concentric squares for levels 1-3 with semi-transparency
+            Color levelColor = new Color(100, 100, 100, 180);
+            g.setColor(levelColor);
             for (int i = 0; i < buildingLevel; i++) {
                 int size = Math.min(width, height) - 2 * padding - (i * 12);
                 int x = padding + (i * 6);
                 int y = padding + (i * 6);
-                g.setColor(Color.DARK_GRAY);
+                g.fillRect(x, y, size, size);
+                g.setColor(new Color(50, 50, 50, 180));
                 g.drawRect(x, y, size, size);
             }
         }

@@ -1,5 +1,6 @@
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
+import javax.swing.JOptionPane;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -100,6 +101,12 @@ public class GridGameBoard implements GameBoard {
      * @param col The column position
      */
     private void handleGamePhase(int row, int col) {
+        // If game is over, ignore all clicks and clear highlights
+        if (gameState.isGameOver()) {
+            clearHighlights();
+            return;
+        }
+
         GridCell clickedCell = getCell(row, col);
         GameEntity occupant = clickedCell.getOccupant();
         
@@ -109,6 +116,12 @@ public class GridGameBoard implements GameBoard {
             handleSelectedPieceClick(row, col, occupant);
         } else {
             handlePieceSelection(row, col, occupant);
+        }
+
+        // Check if game is over after the move
+        if (gameState.isGameOver()) {
+            clearHighlights();
+            updateTurnIndicator(); // This will show the winner
         }
     }
     
@@ -134,10 +147,21 @@ public class GridGameBoard implements GameBoard {
             boolean isCurrentPlayerPiece = isCurrentPlayerPiece(clickedPiece);
                 
             if (isCurrentPlayerPiece) {
+                clearHighlights(); // Clear previous highlights before selecting new piece
                 setSelectedPiece(clickedPiece);
                 highlightValidMoves();
                 updateTurnIndicator();
+            } else {
+                // If clicking on opponent's piece, deselect and clear highlights
+                clearHighlights();
+                setSelectedPiece(null);
+                updateTurnIndicator();
             }
+        } else {
+            // If clicking on an empty invalid cell, deselect and clear highlights
+            clearHighlights();
+            setSelectedPiece(null);
+            updateTurnIndicator();
         }
     }
     
@@ -270,8 +294,14 @@ public class GridGameBoard implements GameBoard {
     @Override
     public void moveEntity(GameEntity entity, int toRow, int toCol) {
         if (boardLogic.moveEntity(entity, toRow, toCol)) {
-            // Update the display
-            highlightValidBuilds(toRow, toCol);
+            // Clear all existing highlights first
+            clearHighlights();
+            
+            // If game is not over, show build phase highlights
+            if (!gameState.isGameOver()) {
+                highlightValidBuilds(toRow, toCol);
+            }
+            
             updateTurnIndicator();
         }
     }
@@ -351,10 +381,23 @@ public class GridGameBoard implements GameBoard {
     }
 
     /**
-     * Updates the turn indicator to show whose turn it is.
+     * Updates the turn indicator to show whose turn it is or who won.
      */
     public void updateTurnIndicator() {
-        boardUI.updateTurnIndicator(gameState, getPlayers(), getPiecesPlacedMap());
+        if (gameState.isGameOver()) {
+            Player winner = gameState.getWinner();
+            turnIndicator.setBackground(winner.getColor());
+            turnIndicator.setToolTipText(winner.getName() + " wins!");
+            
+            // Show victory message in the center of the screen
+            String message = winner.getName() + " wins!";
+            JOptionPane.showMessageDialog(boardPanel, 
+                message,
+                "Game Over",
+                JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            boardUI.updateTurnIndicator(gameState, getPlayers(), getPiecesPlacedMap());
+        }
     }
     
     /**
@@ -420,9 +463,9 @@ public class GridGameBoard implements GameBoard {
     }
 
     /**
-     * Clears all highlights from the board.
+     * Clears all highlights from the board cells.
      */
-    public void clearHighlights() {
+    private void clearHighlights() {
         boardHighlighting.clearAllHighlights();
     }
 } 

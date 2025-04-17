@@ -6,6 +6,8 @@ import java.util.List;
  */
 public class GameState {
     private boolean gameStarted;
+    private boolean gameOver;  // New field for game over state
+    private Player winner;     // New field for winner
     private int currentPlayerIndex;
     private int currentPlayerPlacementIndex;
     private int movesRemaining;
@@ -18,6 +20,8 @@ public class GameState {
      */
     public GameState() {
         this.gameStarted = false;
+        this.gameOver = false;
+        this.winner = null;
         this.currentPlayerIndex = 0;
         this.currentPlayerPlacementIndex = 0;
         this.movesRemaining = 0;
@@ -155,5 +159,47 @@ public class GameState {
      */
     public void setInBuildPhase(boolean inBuildPhase) {
         this.inBuildPhase = inBuildPhase;
+    }
+    
+    /**
+     * Checks if the game is over.
+     * @return true if the game is over, false otherwise
+     */
+    public boolean isGameOver() {
+        return gameOver;
+    }
+    
+    /**
+     * Sets the game over state and winner.
+     * @param gameOver true if game is over, false otherwise
+     * @param winner the winning player, or null if no winner
+     */
+    public void setGameOver(boolean gameOver, Player winner) {
+        this.gameOver = gameOver;
+        this.winner = winner;
+    }
+    
+    /**
+     * Gets the winner of the game.
+     * @return the winning player, or null if game is not over
+     */
+    public Player getWinner() {
+        return winner;
+    }
+
+    /**
+     * Ends the game and cleans up the game state.
+     * This method should be called when a player wins or the game needs to be terminated.
+     * It will prevent further moves and ensure all game state variables are properly reset.
+     * 
+     * @param winner The player who won the game, or null if there's no winner (e.g., in case of a draw or early termination)
+     */
+    public void endGame(Player winner) {
+        this.gameOver = true;
+        this.winner = winner;
+        this.movesRemaining = 0;
+        this.selectedPiece = null;
+        this.inBuildPhase = false;
+        this.gameStarted = false;
     }
 } 
