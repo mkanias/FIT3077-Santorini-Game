@@ -3,9 +3,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.JOptionPane;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -20,7 +18,6 @@ public class GridGameBoard implements GameBoard {
     private final JPanel boardPanel;
     private final JPanel turnIndicator;
     private boolean gameStarted;
-    private int currentPlayerIndex;
     
     /**
      * Creates a new game board with the specified configuration.
@@ -30,7 +27,6 @@ public class GridGameBoard implements GameBoard {
     public GridGameBoard(GameConfig config) {
         this.config = config;
         this.gameStarted = false;
-        this.currentPlayerIndex = 0;
         
         // Initialize UI components
         this.boardPanel = new JPanel(new GridLayout(config.getGridSize(), config.getGridSize()));

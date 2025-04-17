@@ -119,18 +119,40 @@ public class BoardLogic {
      * @return true if the entity was moved successfully, false otherwise
      */
     public boolean moveEntity(GameEntity entity, int toRow, int toCol) {
-        if (entity == null || !isValidMove(entity.getRow(), entity.getCol(), toRow, toCol)) {
+        if (entity == null) return false;
+
+        int fromRow = entity.getRow();
+        int fromCol = entity.getCol();
+        Player currentPlayer = gameState.getCurrentPlayer();
+        
+        // Check if move is valid according to the player's God Card rules
+        if (currentPlayer != null && currentPlayer.getGodCard() != null) {
+            GodCard godCard = currentPlayer.getGodCard();
+            
+            // Execute any pre-move actions
+            godCard.beforeMove(this, fromRow, fromCol, toRow, toCol);
+            
+            // Check if move is valid according to God Card rules
+            if (!godCard.isValidMove(this, fromRow, fromCol, toRow, toCol)) {
+                return false;
+            }
+        } else if (!isValidMove(fromRow, fromCol, toRow, toCol)) {
             return false;
         }
 
         // Get the source and destination cells
-        GridCell sourceCell = getCell(entity.getRow(), entity.getCol());
+        GridCell sourceCell = getCell(fromRow, fromCol);
         GridCell destCell = getCell(toRow, toCol);
 
         // Move the entity
         sourceCell.setOccupant(null);
         destCell.setOccupant(entity);
         entity.setPosition(toRow, toCol);
+
+        // Execute any post-move actions if player has a God Card
+        if (currentPlayer != null && currentPlayer.getGodCard() != null) {
+            currentPlayer.getGodCard().afterMove(this, fromRow, fromCol, toRow, toCol);
+        }
 
         // Check for winning condition - moving from lower level to level 3
         if (sourceCell.getBuildingLevel() < 3 && destCell.getBuildingLevel() == 3) {
@@ -211,11 +233,31 @@ public class BoardLogic {
      * @return true if the build was successful, false otherwise
      */
     public boolean build(int workerRow, int workerCol, int buildRow, int buildCol) {
-        if (!isValidBuild(workerRow, workerCol, buildRow, buildCol)) return false;
+        Player currentPlayer = gameState.getCurrentPlayer();
         
+        // Check if build is valid according to the player's God Card rules
+        if (currentPlayer != null && currentPlayer.getGodCard() != null) {
+            GodCard godCard = currentPlayer.getGodCard();
+            
+            // Execute any pre-build actions
+            godCard.beforeBuild(this, workerRow, workerCol, buildRow, buildCol);
+            
+            // Check if build is valid according to God Card rules
+            if (!godCard.isValidBuild(this, workerRow, workerCol, buildRow, buildCol)) {
+                return false;
+            }
+        } else if (!isValidBuild(workerRow, workerCol, buildRow, buildCol)) {
+            return false;
+        }
+
         GridCell targetCell = cells[buildRow][buildCol];
         int currentLevel = targetCell.getBuildingLevel();
         targetCell.setBuildingLevel(currentLevel + 1);
+
+        // Execute any post-build actions if player has a God Card
+        if (currentPlayer != null && currentPlayer.getGodCard() != null) {
+            currentPlayer.getGodCard().afterBuild(this, workerRow, workerCol, buildRow, buildCol);
+        }
         
         // Exit build phase and switch turns
         gameState.setInBuildPhase(false);
@@ -303,5 +345,21 @@ public class BoardLogic {
         
         // If we get here, no valid moves were found
         return false;
+    }
+
+    /**
+     * Gets the game configuration.
+     * @return The game configuration
+     */
+    public GameConfig getConfig() {
+        return config;
+    }
+
+    /**
+     * Gets the current game state.
+     * @return The game state
+     */
+    public GameState getGameState() {
+        return gameState;
     }
 } 

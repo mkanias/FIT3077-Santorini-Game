@@ -1,32 +1,44 @@
+
+
 import javax.swing.JPanel;
+import java.awt.Color;
 
 /**
- * Represents an entity that can be placed on the game board.
- * This interface defines the basic properties and behaviors that all game entities must implement.
+ * Base class for all game entities that can occupy cells on the board.
  */
-public interface GameEntity {
+public abstract class GameEntity {
+    protected JPanel visualComponent;
+
     /**
-     * Gets the visual representation of this entity.
-     * @return The JPanel that visually represents this entity
+     * Gets the visual component representing this entity.
+     * @return The visual component
      */
-    JPanel getVisualComponent();
-    
+    public JPanel getVisualComponent() {
+        return visualComponent;
+    }
+
     /**
-     * Sets the position of this entity on the game board.
-     * @param row The row position (0-based)
-     * @param col The column position (0-based)
+     * Gets the row position of this entity.
+     * @return The row position
      */
-    void setPosition(int row, int col);
-    
+    public abstract int getRow();
+
     /**
-     * Gets the current row position of this entity.
-     * @return The row position (0-based)
+     * Gets the column position of this entity.
+     * @return The column position
      */
-    int getRow();
-    
+    public abstract int getCol();
+
     /**
-     * Gets the current column position of this entity.
-     * @return The column position (0-based)
+     * Sets the position of this entity.
+     * @param row The row position
+     * @param col The column position
      */
-    int getCol();
+    public abstract void setPosition(int row, int col);
+
+    /**
+     * Gets the color of this entity.
+     * @return The color of the entity
+     */
+    public abstract Color getColor();
 } 

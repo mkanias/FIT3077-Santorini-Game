@@ -3,25 +3,25 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 /**
- * Represents a player piece in the game.
- * Each player has a color, name, and position on the game board.
+ * Represents a player in the game.
  */
-public class Player implements GameEntity {
+public class Player extends GameEntity {
     private final JPanel visualComponent;
     private final Color color;
     private final String name;
+    private GodCard godCard;
     private int row;
     private int col;
 
     /**
-     * Creates a new player piece with the specified color and name.
-     * 
-     * @param color The color of the player piece
-     * @param name The name of the player
+     * Creates a new player.
+     * @param color The player's color
+     * @param name The player's name
      */
     public Player(Color color, String name) {
         this.color = color;
         this.name = name;
+        this.godCard = null; // Players start with no God Card
         this.visualComponent = new JPanel();
         this.visualComponent.setBackground(color);
         this.visualComponent.setPreferredSize(new Dimension(40, 40));
@@ -32,35 +32,61 @@ public class Player implements GameEntity {
         return visualComponent;
     }
 
-    @Override
-    public void setPosition(int row, int col) {
-        this.row = row;
-        this.col = col;
-    }
-
-    @Override
-    public int getRow() {
-        return row;
-    }
-
-    @Override
-    public int getCol() {
-        return col;
-    }
-
     /**
-     * Gets the color of this player piece.
-     * @return The color of the player piece
+     * Gets the player's color.
+     * @return The player's color
      */
     public Color getColor() {
         return color;
     }
 
     /**
-     * Gets the name of this player.
-     * @return The name of the player
+     * Gets the player's name.
+     * @return The player's name
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Gets the player's assigned God Card.
+     * @return The player's God Card, or null if none assigned
+     */
+    public GodCard getGodCard() {
+        return godCard;
+    }
+
+    /**
+     * Assigns a God Card to the player.
+     * @param godCard The God Card to assign
+     */
+    public void setGodCard(GodCard godCard) {
+        this.godCard = godCard;
+    }
+
+    /**
+     * Gets the player's current row position.
+     * @return The row position
+     */
+    public int getRow() {
+        return row;
+    }
+
+    /**
+     * Gets the player's current column position.
+     * @return The column position
+     */
+    public int getCol() {
+        return col;
+    }
+
+    /**
+     * Sets the player's position on the board.
+     * @param row The row position
+     * @param col The column position
+     */
+    public void setPosition(int row, int col) {
+        this.row = row;
+        this.col = col;
     }
 } 
